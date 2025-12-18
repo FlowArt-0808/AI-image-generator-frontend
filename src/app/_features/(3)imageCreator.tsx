@@ -2,14 +2,13 @@
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useEverythingContext } from "../_provider/everythingProvider";
+import { useAIContext } from "../_provider/AI-relatedProvider";
 import { Textarea } from "@/components/ui/textarea";
 import StarIcon from "@/components/ui/star-icon";
 import ReloadIcon from "@/components/ui/reload-icon";
 import ImageIcon from "@/components/ui/image-icon";
 export const ImageCreator = () => {
-  const { loading, generated, generatedImageAnalysisText } =
-    useEverythingContext();
+  const { loading, generated, generatedImageAnalysisText } = useAIContext();
 
   return (
     <div aria-label="Every content" className="flex flex-col gap-6">
@@ -67,11 +66,15 @@ export const ImageCreator = () => {
             </Label>
           )}
           {loading ? (
-            <Textarea>It is loading</Textarea>
+            <Textarea value="Loading ingredients..." disabled />
           ) : generated ? (
-            <Textarea>{generatedImageAnalysisText}</Textarea>
+            <Textarea value={generatedImageAnalysisText} readOnly />
           ) : (
-            ``
+            <Textarea
+              value=""
+              placeholder="Results will appear here..."
+              readOnly
+            />
           )}
         </div>
       </div>

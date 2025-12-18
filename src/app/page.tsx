@@ -1,7 +1,6 @@
 "use client";
 
 import { Header } from "./_features/header";
-import { useEverythingContext } from "./_provider/everythingProvider";
 
 import * as React from "react";
 
@@ -10,6 +9,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { ImageAnalysis } from "./_features/(1)imageAnalysis";
 import { ImageCreator } from "./_features/(3)imageCreator";
 import { IngredientRecognition } from "./_features/(2)ingredientRecognition";
+import { useFrontendContext } from "./_provider/frontendRelatedProvider";
 
 export default function Home() {
   const {
@@ -17,7 +17,7 @@ export default function Home() {
     handleImageAnalysisTab,
     handleImageCreator,
     handleIngredientRecognition,
-  } = useEverythingContext();
+  } = useFrontendContext();
 
   return (
     <div className=" flex flex-col gap-6 items-center ">

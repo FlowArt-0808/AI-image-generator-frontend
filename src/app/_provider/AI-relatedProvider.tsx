@@ -11,51 +11,43 @@ import {
 
 import React from "react";
 
-type EverythingContextType = {
-  ingredientTextarea: string;
-  activeTab: string;
+type AIContextType = {
+  generatedIngredientRecognitionText: string; // frontend and backend
+  ingredientTextarea: string; //backend
   generatedImageAnalysisText: string;
+  setGeneratedIngredientRecognitionText: Dispatch<SetStateAction<string>>;
   setGeneratedImageAnalysisText: Dispatch<SetStateAction<string>>;
-  setTextArea: Dispatch<SetStateAction<string>>;
-  setActiveTab: Dispatch<SetStateAction<string>>;
-  handleImageAnalysisTab: () => void;
-  handleImageCreator: () => void;
-  handleGenerated: () => void;
-  handleIngredientRecognition: () => void;
-  handleTextAreaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  sendIngredientTextToBackend: () => Promise<void>;
-  loading: boolean;
-  generated: boolean;
+  setTextArea: Dispatch<SetStateAction<string>>; // frontend and backend //Used for ingredient recognition
+  handleGenerated: () => void; //backend and frontend
+  handleTextAreaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; //frontend and backend
+  sendIngredientTextToBackend: () => Promise<void>; // backend
+  loading: boolean; //frontend and backend
+  generated: boolean; // frontend and backend
 };
 
-const EverythingContext = createContext<EverythingContextType | undefined>(
-  undefined
-);
+const AIContext = createContext<AIContextType | undefined>(undefined);
 
-export const useEverythingContext = () => {
-  const context = useContext(EverythingContext);
+export const useAIContext = () => {
+  const context = useContext(AIContext);
 
   if (!context) {
-    throw new Error(
-      "useEverythingContext must be used inside <EverythingProvider>"
-    );
+    throw new Error("useAIContext must be used inside <AIProvider>");
   }
 
   return context;
 };
 
-export const EverythingProvider = ({ children }: { children: ReactNode }) => {
-  const [activeTab, setActiveTab] = useState(`ImageAnalysis`);
+export const AIProvider = ({ children }: { children: ReactNode }) => {
   const [ingredientTextarea, setTextArea] = useState(``);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [generatedImageAnalysisText, setGeneratedImageAnalysisText] =
-    useState(`Test Test Test`);
+    useState(``);
+  const [
+    generatedIngredientRecognitionText,
+    setGeneratedIngredientRecognitionText,
+  ] = useState(``);
 
-  const handleImageAnalysisTab = () => setActiveTab(`ImageAnalysis`);
-  const handleImageCreator = () => setActiveTab(`ImageCreator`);
-  const handleIngredientRecognition = () =>
-    setActiveTab(`IngredientRecognition`);
   const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setTextArea(value);
@@ -66,6 +58,7 @@ export const EverythingProvider = ({ children }: { children: ReactNode }) => {
 
   const sendIngredientTextToBackend = async () => {
     setLoading(true);
+    setGenerated(false);
     try {
       const response = await fetch(
         "http://localhost:777/authentication/ingredients",
@@ -75,13 +68,20 @@ export const EverythingProvider = ({ children }: { children: ReactNode }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            ingredients: ingredientTextarea,
+            contents: ingredientTextarea,
           }),
         }
       );
 
       const data = await response.json();
-      console.log("Success:", data);
+      if (data.success) {
+        console.log("Success:", data);
+        setGenerated(true);
+        setGeneratedIngredientRecognitionText(data.message);
+        return data.message;
+      } else {
+        throw new Error(data.message);
+      }
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -89,22 +89,15 @@ export const EverythingProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // const handleGeneratedImageAnalysisText =
-
   return (
-    <EverythingContext.Provider
+    <AIContext.Provider
       value={{
         generatedImageAnalysisText,
-        activeTab,
+        generatedIngredientRecognitionText,
         ingredientTextarea,
-
         setGeneratedImageAnalysisText,
+        setGeneratedIngredientRecognitionText,
         setTextArea,
-        setActiveTab,
-
-        handleImageAnalysisTab,
-        handleImageCreator,
-        handleIngredientRecognition,
         handleTextAreaChange,
         handleGenerated,
         sendIngredientTextToBackend,
@@ -113,6 +106,6 @@ export const EverythingProvider = ({ children }: { children: ReactNode }) => {
       }}
     >
       {children}
-    </EverythingContext.Provider>
+    </AIContext.Provider>
   );
 };

@@ -4,15 +4,16 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useEverythingContext } from "../_provider/everythingProvider";
+import { useAIContext } from "../_provider/AI-relatedProvider";
+
 import StarIcon from "@/components/ui/star-icon";
 import ReloadIcon from "@/components/ui/reload-icon";
 import FileIcon from "@/components/ui/file-icon";
 
 export const ImageAnalysis = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const { generatedImageAnalysisText, loading, generated } =
-    useEverythingContext();
+  const { generatedImageAnalysisText, loading, generated } = useAIContext();
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -139,11 +140,15 @@ export const ImageAnalysis = () => {
           </Label>
         )}
         {loading ? (
-          <Textarea>It is loading</Textarea>
+          <Textarea value="Loading ingredients..." disabled />
         ) : generated ? (
-          <Textarea>{generatedImageAnalysisText}</Textarea>
+          <Textarea value={generatedImageAnalysisText} readOnly />
         ) : (
-          ``
+          <Textarea
+            value=""
+            placeholder="Results will appear here..."
+            readOnly
+          />
         )}
       </div>
     </div>

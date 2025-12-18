@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useEverythingContext } from "../_provider/everythingProvider";
+import { useAIContext } from "../_provider/AI-relatedProvider";
 import StarIcon from "@/components/ui/star-icon";
 import ReloadIcon from "@/components/ui/reload-icon";
 import FileIcon from "@/components/ui/file-icon";
@@ -14,8 +14,10 @@ export const IngredientRecognition = () => {
     sendIngredientTextToBackend,
     loading,
     generated,
-    generatedImageAnalysisText,
-  } = useEverythingContext();
+    generatedIngredientRecognitionText,
+  } = useAIContext();
+
+  console.log("loading---1s", loading);
   return (
     <div aria-label="Everything inside it" className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -78,11 +80,15 @@ export const IngredientRecognition = () => {
           </Label>
         )}
         {loading ? (
-          <Textarea>It is loading</Textarea>
+          <Textarea value="Loading ingredients..." disabled />
         ) : generated ? (
-          <Textarea>{generatedImageAnalysisText}</Textarea>
+          <Textarea value={generatedIngredientRecognitionText} readOnly />
         ) : (
-          ``
+          <Textarea
+            value=""
+            placeholder="Results will appear here..."
+            readOnly
+          />
         )}
       </div>
     </div>
