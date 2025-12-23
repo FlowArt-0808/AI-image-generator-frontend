@@ -9,11 +9,13 @@ import ReloadIcon from "@/components/ui/reload-icon";
 import ImageIcon from "@/components/ui/image-icon";
 export const ImageCreator = () => {
   const {
+    generatedImage,
     generatedImageAnalysisTextarea,
     isImageCreated,
     imageCreatorLoading,
     imageCreatorTextarea,
     handleImageCreatorTextareaChange,
+    handleTextToImage,
     setImageCreatorTextarea,
     setIsImageCreated,
   } = useAIContext();
@@ -58,6 +60,7 @@ export const ImageCreator = () => {
             className={`w-27 py-2 px-4 flex items-center justify-center ml-118 cursor-pointer opacity-25 hover:opacity-100  ${
               imageCreatorLoading ? "opacity-100" : ""
             }  `}
+            onClick={handleTextToImage}
           >
             {imageCreatorLoading ? "Generating..." : "Generate"}
           </Button>
@@ -86,11 +89,9 @@ export const ImageCreator = () => {
           ) : isImageCreated ? (
             <Textarea value={generatedImageAnalysisTextarea} readOnly />
           ) : (
-            <Textarea
-              value=""
-              placeholder="Yo, your generated shit will show up here..."
-              readOnly
-            />
+            <div>
+              <img src={generatedImage || ""} alt="" />
+            </div>
           )}
         </div>
       </div>

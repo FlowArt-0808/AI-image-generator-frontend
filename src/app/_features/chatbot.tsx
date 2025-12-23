@@ -15,7 +15,7 @@ export const Chatbot = () => {
       }`}
     >
       {chatbotTab ? (
-        <div className="w-95 h-118 flex flex-col border border-[#E4E4E7] shadow-md rounded-md  ">
+        <div className="w-95 h-118 flex flex-col border border-[#E4E4E7] shadow-md rounded-md bg-[#FFF] ">
           <div
             aria-label="Label"
             className="px-2 py-4 flex justify-between items-center"

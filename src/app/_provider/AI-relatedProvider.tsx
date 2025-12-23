@@ -14,10 +14,10 @@ import axios from "axios";
 import React from "react";
 
 type AIContextType = {
+  generatedImage: string | null;
   imageAnalysisLoading: boolean;
-  imageCreatorLoading: boolean;
-  generatedIngredientRecognitionText: string; // frontend and backend
-  ingredientTextarea: string; //backend
+  generatedIngredientRecognitionText: string;
+  ingredientTextarea: string;
   imageCreatorTextarea: string;
   generatedImageAnalysisTextarea: string;
   setIsImageCreated: Dispatch<SetStateAction<boolean>>;
@@ -27,15 +27,16 @@ type AIContextType = {
   setIsIngredientTextareaGenerated: Dispatch<SetStateAction<boolean>>;
   setGeneratedImageAnalysisTextarea: Dispatch<SetStateAction<string>>;
   setGeneratedIngredientRecognitionText: Dispatch<SetStateAction<string>>;
-  DummyHandleGenerated: () => void; //backend and frontend
-  handleTextareaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; //frontend and backend
+  handleTextToImage: () => Promise<void>;
+  handleTextareaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleImageCreatorTextareaChange: (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => void;
-  sendIngredientTextToBackend: () => Promise<void>; // backend
-  ingredientTextareaLoading: boolean; //frontend and backend
+  sendIngredientTextToBackend: () => Promise<void>;
+  ingredientTextareaLoading: boolean;
+  imageCreatorLoading: boolean;
   isImageAnalyzedTextareaGenerated: boolean;
-  isIngredientTextareaGenerated: boolean; // frontend and backend
+  isIngredientTextareaGenerated: boolean;
   isImageCreated: boolean;
 };
 
@@ -66,11 +67,13 @@ export const AIProvider = ({ children }: { children: ReactNode }) => {
     useState(false);
   const [isImageCreated, setIsImageCreated] = useState(false);
   const [generatedImageAnalysisTextarea, setGeneratedImageAnalysisTextarea] =
-    useState(`Test Test Test`);
+    useState(``);
   const [
     generatedIngredientRecognitionText,
     setGeneratedIngredientRecognitionText,
   ] = useState(``);
+
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
   const handleImageCreatorTextareaChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
@@ -84,14 +87,33 @@ export const AIProvider = ({ children }: { children: ReactNode }) => {
     const value = e.target.value;
     setIngredientTextarea(value);
   };
-  const DummyHandleGenerated = () => (
-    setIsIngredientTextareaGenerated(false),
-    setIsImageAnalyzedTextareaGenerated(false),
-    setIsImageCreated(false),
-    setGeneratedImageAnalysisTextarea(`Test Test Test`),
-    setImageAnalysisLoading(false),
-    setImageCreatorLoading(false)
-  );
+
+  const handleTextToImage = async () => {
+    setImageCreatorLoading(true);
+    setIsImageAnalyzedTextareaGenerated(false);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:777/authentication/imageCreator",
+
+        { contents: imageCreatorTextarea }
+      );
+
+      if (response.data.success) {
+        console.log("Success:", response.data);
+        setGeneratedImage(response.data.image);
+        setIsImageAnalyzedTextareaGenerated(true);
+        setImageCreatorLoading(false);
+        return response.data.image;
+      } else {
+        throw new Error(response.data.image);
+      }
+    } catch (err) {
+      console.log(err, `your connection to API ain't working`);
+    } finally {
+      setImageCreatorLoading(false);
+    }
+  };
 
   const sendIngredientTextToBackend = async () => {
     setIngredientTextareaLoading(true);
@@ -122,13 +144,14 @@ export const AIProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AIContext.Provider
       value={{
+        generatedImage,
         generatedImageAnalysisTextarea,
         generatedIngredientRecognitionText,
         ingredientTextarea,
         imageCreatorTextarea,
+        handleTextToImage,
         handleTextareaChange,
         handleImageCreatorTextareaChange,
-        DummyHandleGenerated,
         setIngredientTextarea,
         setGeneratedImageAnalysisTextarea,
         setIsImageCreated,
