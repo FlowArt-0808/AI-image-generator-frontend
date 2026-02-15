@@ -7,6 +7,7 @@ import { useAIContext } from "../_provider/AI-relatedProvider";
 import StarIcon from "@/components/ui/star-icon";
 import ReloadIcon from "@/components/ui/reload-icon";
 import FileIcon from "@/components/ui/file-icon";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const IngredientRecognition = () => {
   const {
@@ -61,6 +62,7 @@ export const IngredientRecognition = () => {
           />
           <Button
             onClick={sendIngredientTextToBackend}
+            disabled={ingredientTextareaLoading || !ingredientTextarea.trim()}
             className={`w-27 py-2 px-4 flex items-center justify-center ml-118 cursor-pointer opacity-25 hover:opacity-100  ${
               ingredientTextareaLoading ? "opacity-100" : ""
             }  `}
@@ -84,11 +86,15 @@ export const IngredientRecognition = () => {
           ``
         ) : (
           <Label className="text-[#71717A] text-[14px] font-normal">
-            First, enter your image to recognize an ingredients
+            Enter food names or ingredient nouns to classify them.
           </Label>
         )}
         {ingredientTextareaLoading ? (
-          <Textarea value="Loading ingredients..." disabled />
+          <div className="rounded-lg border border-[#E4E4E7] p-4 space-y-3">
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-10/12" />
+          </div>
         ) : isIngredientTextareaGenerated ? (
           <Textarea value={generatedIngredientRecognitionText} readOnly />
         ) : (

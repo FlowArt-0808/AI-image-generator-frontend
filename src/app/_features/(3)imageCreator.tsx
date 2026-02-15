@@ -7,14 +7,18 @@ import { Textarea } from "@/components/ui/textarea";
 import StarIcon from "@/components/ui/star-icon";
 import ReloadIcon from "@/components/ui/reload-icon";
 import ImageIcon from "@/components/ui/image-icon";
+import { Skeleton } from "@/components/ui/skeleton";
 export const ImageCreator = () => {
   const {
     generatedImage,
+    imageCreatorError,
     isImageCreated,
     imageCreatorLoading,
     imageCreatorTextarea,
     handleImageCreatorTextareaChange,
     handleTextToImage,
+    setGeneratedImage,
+    setImageCreatorError,
     setImageCreatorTextarea,
     setIsImageCreated,
   } = useAnotherAIContext();
@@ -36,7 +40,10 @@ export const ImageCreator = () => {
             variant="outline"
             className="cursor-pointer hover:bg-black hover:text-white"
             onClick={() => (
-              setImageCreatorTextarea(``), setIsImageCreated(false)
+              setImageCreatorTextarea(``),
+              setGeneratedImage(null),
+              setImageCreatorError(""),
+              setIsImageCreated(false)
             )}
           >
             <ReloadIcon />
@@ -60,6 +67,7 @@ export const ImageCreator = () => {
               imageCreatorLoading ? "opacity-100" : ""
             }  `}
             onClick={handleTextToImage}
+            disabled={imageCreatorLoading || !imageCreatorTextarea.trim()}
           >
             {imageCreatorLoading ? "Generating..." : "Generate"}
           </Button>
@@ -78,19 +86,25 @@ export const ImageCreator = () => {
             <Label className="text-[#71717A] text-[14px] font-normal">
               Please wait, it's generating...
             </Label>
+          ) : imageCreatorError ? (
+            <Label className="text-red-500 text-[14px] font-normal">
+              {imageCreatorError}
+            </Label>
           ) : (
             <Label className="text-[#71717A] text-[14px] font-normal">
-              First, enter your image to recognize an ingredient
+              Enter a food prompt to generate an image.
             </Label>
           )}
           {imageCreatorLoading ? (
-            <Textarea value="Loading image..." disabled />
+            <div className="rounded-lg border border-[#E4E4E7] p-4 space-y-3">
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-80 w-full rounded-lg" />
+            </div>
           ) : isImageCreated ? (
             <div className="p-4 flex flex-col gap-1 border border-[#E4E4E7] rounded-lg">
-              <h1>Test</h1>
               <img
                 src={generatedImage || ""}
-                alt=""
+                alt="Generated food"
                 className="bg-center bg-cover rounded-lg w-90 h-90"
               />
             </div>
