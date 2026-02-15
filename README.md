@@ -1,37 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Image Generator
 
-## Getting Started
+This project is now fully frontend-hosted with Next.js App Router and Next.js API routes.
+You do not need a separate Express backend domain to run or deploy AI features.
 
-First, run the development server:
+## Features
+
+- Ingredient recognition
+- Image creator
+- Image analysis
+- Chatbot
+
+All AI calls are handled by server routes under:
+
+- `src/app/api/authentication/ingredients/route.ts`
+- `src/app/api/authentication/imageCreator/route.ts`
+- `src/app/api/authentication/analysis/route.ts`
+- `src/app/api/authentication/chatbot/route.ts`
+
+## Local setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create `.env.local`:
+
+```bash
+HF_TOKEN=your_huggingface_token
+```
+
+3. Start dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deploy to Vercel
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Import this frontend project to Vercel.
+2. Add environment variable:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `HF_TOKEN` = your Hugging Face token
 
-## Learn More
+3. Deploy.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# AI-image-generator
+No backend URL or CORS setup is required with this architecture.

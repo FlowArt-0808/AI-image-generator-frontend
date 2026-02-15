@@ -5,39 +5,44 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAIContext } from "../_provider/AI-relatedProvider";
-
 import StarIcon from "@/components/ui/star-icon";
 import ReloadIcon from "@/components/ui/reload-icon";
 import FileIcon from "@/components/ui/file-icon";
-
+import { Skeleton } from "@/components/ui/skeleton";
+import { fileToDataUrl, optimizeImageDataUrl } from "@/lib/imageOptimization";
 export const ImageAnalysis = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const {
     generatedImageAnalysisTextarea,
     imageAnalysisLoading,
     isImageAnalyzedTextareaGenerated,
+    sendImageToBackend,
+    setImageAnalysisInput,
     setGeneratedImageAnalysisTextarea,
     setIsImageAnalyzedTextareaGenerated,
   } = useAIContext();
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      fileToDataUrl(file)
+        .then(optimizeImageDataUrl)
+        .then((optimizedData) => {
+          setImagePreview(optimizedData);
+          setImageAnalysisInput(optimizedData);
+        })
+        .catch(() => {
+          setImagePreview(null);
+          setImageAnalysisInput("");
+          setGeneratedImageAnalysisTextarea(
+            "Could not process this image. Please try another file."
+          );
+          setIsImageAnalyzedTextareaGenerated(true);
+        });
     }
   };
-
   return (
     <div aria-label="Contents inside it" className="flex flex-col gap-6 ">
-      <div
-        className="flex flex-col gap-2
-      "
-      >
-        {" "}
+      <div className="flex flex-col gap-2">
         <div aria-label="Header" className="flex justify-between">
           <div
             aria-label="The icon and text"
@@ -52,6 +57,8 @@ export const ImageAnalysis = () => {
             variant="outline"
             className="cursor-pointer hover:bg-black hover:text-white "
             onClick={() => (
+              setImagePreview(null),
+              setImageAnalysisInput(``),
               setGeneratedImageAnalysisTextarea(``),
               setIsImageAnalyzedTextareaGenerated(false)
             )}
@@ -59,16 +66,10 @@ export const ImageAnalysis = () => {
             <ReloadIcon />
           </Button>
         </div>
-        <Label
-          htmlFor="nothing"
-          className="text-[#71717A] text-[14px] font-normal"
-        >
+        <Label htmlFor="nothing" className="text-[#71717A] text-[14px] font-normal">
           Upload a food photo, and the AI will detect the ingredients.
         </Label>
-        <div
-          aria-label="Image drop zone and generate button"
-          className="flex flex-col gap-2"
-        >
+        <div aria-label="Image drop zone and generate button" className="flex flex-col gap-2">
           <div className="relative cursor-pointer">
             <Input
               id="picture"
@@ -87,7 +88,9 @@ export const ImageAnalysis = () => {
                   className="w-full h-auto max-h-80 object-cover"
                 />
                 <button
-                  onClick={() => setImagePreview(null)}
+                  onClick={() => (
+                    setImagePreview(null), setImageAnalysisInput(``)
+                  )}
                   className="absolute bottom-4 right-4 bg-white rounded-lg p-2 shadow-lg hover:bg-gray-100 transition-colors"
                   aria-label="Remove image"
                 >
@@ -111,6 +114,8 @@ export const ImageAnalysis = () => {
             )}
           </div>
           <Button
+            onClick={sendImageToBackend}
+            disabled={!imagePreview || imageAnalysisLoading}
             className={`w-27 h-10 py-2 px-4 flex items-center justify-center ml-122 cursor-pointer opacity-25 hover:opacity-100 ${
               imageAnalysisLoading ? "opacity-100" : ""
             }`}
@@ -119,11 +124,7 @@ export const ImageAnalysis = () => {
           </Button>
         </div>
       </div>
-
-      <div
-        aria-label="Summary generator section"
-        className="flex flex-col gap-2"
-      >
+      <div aria-label="Summary generator section" className="flex flex-col gap-2">
         <div aria-label="Summary Header" className="flex gap-2 items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -146,11 +147,16 @@ export const ImageAnalysis = () => {
           </Label>
         ) : (
           <Label className="text-[#71717A] text-[14px] font-normal">
-            First, enter your image to recognize an ingredient
+            Upload a food image to analyze it.
           </Label>
         )}
         {imageAnalysisLoading ? (
-          <Textarea value="Loading analyzed image text..." disabled />
+          <div className="rounded-lg border border-[#E4E4E7] p-4 space-y-3">
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-11/12" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
         ) : isImageAnalyzedTextareaGenerated ? (
           <Textarea value={generatedImageAnalysisTextarea} readOnly />
         ) : (
